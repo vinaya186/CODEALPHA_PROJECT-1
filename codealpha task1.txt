@@ -1,0 +1,117 @@
+#include <iostream>
+#include <iomanip>
+#include <vector>
+#include <string>
+
+using namespace std;
+
+struct Course {
+    string name;
+    double grade;
+    int creditHours;
+    double gradePoints;
+};
+
+struct Semester {
+    vector<Course> courses;
+    double gpa;
+    int totalCredits;
+    double totalGradePoints;
+};
+
+double calculateGPA(const vector<Course>& courses, int& totalCredits, double& totalGradePoints) {
+    totalCredits = 0;
+    totalGradePoints = 0.0;
+    
+    for (const auto& course : courses) {
+        totalCredits += course.creditHours;
+        totalGradePoints += course.gradePoints;
+    }
+    
+    return (totalCredits > 0) ? (totalGradePoints / totalCredits) : 0.0;
+}
+
+int main() {
+    vector<Semester> semesters;
+    int numSemesters;
+    
+    cout << "========================================" << endl;
+    cout << "       CGPA CALCULATOR SYSTEM" << endl;
+    cout << "========================================" << endl;
+    cout << "\nEnter the number of semesters: ";
+    cin >> numSemesters;
+    
+    for (int s = 0; s < numSemesters; s++) {
+        Semester semester;
+        int numCourses;
+        
+        cout << "\n--- SEMESTER " << (s + 1) << " ---" << endl;
+        cout << "Enter the number of courses: ";
+        cin >> numCourses;
+        
+        for (int i = 0; i < numCourses; i++) {
+            Course course;
+            
+            cout << "\nCourse " << (i + 1) << ":" << endl;
+            cout << "  Enter course name: ";
+            cin.ignore();
+            getline(cin, course.name);
+            
+            cout << "  Enter grade (0.0 - 4.0 scale): ";
+            cin >> course.grade;
+            
+            cout << "  Enter credit hours: ";
+            cin >> course.creditHours;
+            
+            course.gradePoints = course.grade * course.creditHours;
+            semester.courses.push_back(course);
+        }
+        
+        semester.gpa = calculateGPA(semester.courses, semester.totalCredits, semester.totalGradePoints);
+        semesters.push_back(semester);
+    }
+    
+    // Display Results
+    cout << "\n========================================" << endl;
+    cout << "           DETAILED RESULTS" << endl;
+    cout << "========================================" << endl;
+    
+    double overallGradePoints = 0.0;
+    int overallCredits = 0;
+    
+    for (size_t s = 0; s < semesters.size(); s++) {
+        cout << "\n--- SEMESTER " << (s + 1) << " ---" << endl;
+        cout << left << setw(25) << "Course Name" 
+             << setw(10) << "Grade" 
+             << setw(10) << "Credits" 
+             << setw(15) << "Grade Points" << endl;
+        cout << string(60, '-') << endl;
+        
+        for (const auto& course : semesters[s].courses) {
+            cout << left << setw(25) << course.name
+                 << setw(10) << fixed << setprecision(2) << course.grade
+                 << setw(10) << course.creditHours
+                 << setw(15) << fixed << setprecision(2) << course.gradePoints << endl;
+        }
+        
+        cout << string(60, '-') << endl;
+        cout << "Total Credits: " << semesters[s].totalCredits << endl;
+        cout << "Total Grade Points: " << fixed << setprecision(2) << semesters[s].totalGradePoints << endl;
+        cout << "Semester GPA: " << fixed << setprecision(2) << semesters[s].gpa << endl;
+        
+        overallGradePoints += semesters[s].totalGradePoints;
+        overallCredits += semesters[s].totalCredits;
+    }
+    
+    double cgpa = (overallCredits > 0) ? (overallGradePoints / overallCredits) : 0.0;
+    
+    cout << "\n========================================" << endl;
+    cout << "           FINAL SUMMARY" << endl;
+    cout << "========================================" << endl;
+    cout << "Total Credits Completed: " << overallCredits << endl;
+    cout << "Total Grade Points: " << fixed << setprecision(2) << overallGradePoints << endl;
+    cout << "CUMULATIVE GPA (CGPA): " << fixed << setprecision(2) << cgpa << endl;
+    cout << "========================================" << endl;
+    
+    return 0;
+}
